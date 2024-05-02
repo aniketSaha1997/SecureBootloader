@@ -1,0 +1,7 @@
+# Ignore everything in the Debug folder
+Debug/
+
+# Optional: If you have a subfolder in Debug that you want to track, use an exception
+# !Debug/specific-subfolder/
+
+# Note: If you want to include an empty Debug folder, create a .gitkeep file inside it
