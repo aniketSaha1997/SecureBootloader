@@ -1,34 +1,40 @@
 /**
   ******************************************************************************
   * @file    securitycheck.h
-  * @brief   Header file of security config check module.
-  *          This file provides set of firmware functions to manage Com
-  *          functionalities.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
+  * @brief   Header file for security check module.
+  *          This file provides set of firmware functions to manage WRP and RDP
+  *          toggle functionalities.
   ******************************************************************************
   */
 #ifndef __SECURITYCHECK_H
 #define __SECURITYCHECK_H
 
+/******************************************************************************
+ * Include Header Files
+ ******************************************************************************/
 #include "hashcheck.h"
 
-#define WRP_PROTECT_ENABLE
+/******************************************************************************
+ * Macros Constant Declarations
+ ******************************************************************************/
+//#define WRP_PROTECT_ENABLE
 //#define RDP_PROTECT_ENABLE
 
-#define WRP_START_ADD ((HASH_ADD - FLASH_BASE)/FLASH_SECTOR_SIZE(2))
-#define WRP_END_ADD     WRP_START_ADD
-#define RDP_LEVEL_CONFIG OB_RDP_LEVEL_1
+#define WRP_START_ADD 		((HASH_ADD - FLASH_BASE)/FLASH_SECTOR_SIZE(2))
+#define WRP_END_ADD     	WRP_START_ADD
+#define RDP_LEVEL_CONFIG 	OB_RDP_LEVEL_1
 
-void CheckApplyStaticProtections(void);
+/******************************************************************************
+ * Extern Functions Declaration
+ ******************************************************************************/
+/**
+  * @brief  Check and if not applied apply the Static security  protections to
+  *         critical sections in Flash: RDP, WRP. Static security protections
+  *         those protections not impacted by a Reset. They are set using the Option Bytes
+  *         When the device is locked (RDP Level2), these protections cannot be changed anymore
+  * @param  None
+  * @note   If security setting apply fails, enter Error Handler
+  */
+extern void CheckApplyStaticProtections(void);
 
 #endif /* __SECURITYCHECK_H */

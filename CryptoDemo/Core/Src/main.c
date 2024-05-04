@@ -102,13 +102,13 @@ int main(void)
   printf("\r\n============= APP COM Init ==========\r\n");
 
   printf("\r\n=============> Protection check\r\n");
-  //CheckApplyStaticProtections();
+  CheckApplyStaticProtections();
 
   printf("\r\n=============> FW Hash Verification\r\n");
   FwHashVerify();
 
   printf("\r\n=============> FW Signature Verification\r\n");
-  FW_Signature_Verify();
+  FwSignatureVerify();
 
   printf("\r\n=============> Start App \r\n");
   APP_Init();

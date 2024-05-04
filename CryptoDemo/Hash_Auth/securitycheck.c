@@ -1,27 +1,26 @@
 /**
-  ******************************************************************************
-  * @file    securitycheck.c
-  * @brief   Low level security check module. Provides functions to check system
-  *          security configurations.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    securitycheck.c
+ * @brief   Low level security check module. Provides functions to check system
+ *          security configurations.
+ ******************************************************************************
+ */
+
+/******************************************************************************
+ * Include Header Files
+ ******************************************************************************/
 #include "main.h"
 #include "securitycheck.h"
 #include <stdio.h>
 
-#define EXCPT_Security_Error() Fatal_Error_Handler()
+/******************************************************************************
+ * Macros Parameter Declarations
+ ******************************************************************************/
+#define EXCPT_SECURITY_ERROR() FatalErrorHandler()
 
+/******************************************************************************
+ * Extern Functions Definitions
+ ******************************************************************************/
 /**
   * @brief  Check and if not applied apply the Static security  protections to
   *         critical sections in Flash: RDP, WRP. Static security protections
@@ -30,7 +29,7 @@
   * @param  None
   * @note   If security setting apply fails, enter Error Handler
   */
-void CheckApplyStaticProtections(void)
+extern void CheckApplyStaticProtections(void)
 {
   FLASH_OBProgramInitTypeDef flash_option_bytes;
   int32_t isOBChangeToApply = 0;
@@ -129,8 +128,6 @@ ERROR:
   to protect the FLASH memory against possible unwanted operation) *********/
   HAL_FLASH_Lock();
   
-  EXCPT_Security_Error();
+  EXCPT_SECURITY_ERROR();
 
 }
-
-

@@ -1,8 +1,9 @@
 /**
- * @file       hashcheck.c
- *
- * @brief
- *
+ ******************************************************************************
+ * @file    hashcheck.c
+ * @brief   This file provides set of firmware functions to manage hash verification
+ *          functionalities.
+ ******************************************************************************
  */
 
 /******************************************************************************
@@ -18,7 +19,6 @@
  ******************************************************************************/
 static int32_t Sha256HashDigestCompute(uint8_t* InputMessage_pu8, uint32_t InputMessageLength_u32,
                                         uint8_t *MessageDigest_pu8, int32_t* MessageDigestLength_ps32);
-static void Fatal_Error_Handler(void);
 
 /******************************************************************************
  * Extern Function Definitions
@@ -33,9 +33,9 @@ extern void FwHashVerify(void)
 	__CRC_CLK_ENABLE();
 
 	printf("\r\nStart FW Hash Check...\r\n");
-	printf("\tFW start address: 0x%08x\r\n", FW_START_ADD);
-	printf("\tFW size: 0x%08x\r\n", FW_SIZE_ALIGNED);
-	printf("\tFW HASH address: 0x%08x\r\n", HASH_ADD);
+	printf("\tFW start address: 0x%08lx\r\n", FW_START_ADD);
+	printf("\tFW size: 0x%08lx\r\n", FW_SIZE_ALIGNED);
+	printf("\tFW HASH address: 0x%08lx\r\n", HASH_ADD);
 	printf("\tFW HASH SIZE: 0x%08x\r\n", HASH_SIZE);
 
 	result_s32 = Sha256HashDigestCompute((uint8_t*)FW_START_ADD,
@@ -79,6 +79,11 @@ ERROR:
   FatalErrorHandler();
 }
 
+extern void FatalErrorHandler(void)
+{
+	printf("\r\nFatal error! Enter endless loop!\r\n");
+	while(1){};
+}
 
 /******************************************************************************
  * Private Function Definitions
@@ -124,11 +129,4 @@ static int32_t Sha256HashDigestCompute(uint8_t* InputMessage_pu8, uint32_t Input
 	}
 
 	return error_u32;
-}
-
-
-extern void FatalErrorHandler(void)
-{
-	printf("\r\nFatal error! Enter endless loop!\r\n");
-	while(1){};
 }

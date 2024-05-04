@@ -1,24 +1,15 @@
 /**
-  ******************************************************************************
-  * @file    sigcheck.c
-  * @brief   Example of fw signature check.
-  *          This file provides set of firmware functions to manage Com
-  *          functionalities.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
+ *****************************************************************************
+ * @file    sigcheck.c
+ * @brief   This file provides set of firmware functions to verify the signature
+ *          of the firmware.
+ *
+ ******************************************************************************
+ */
 
-/* Includes ------------------------------------------------------------------*/
+/******************************************************************************
+ * Include Header Files
+ ******************************************************************************/
 #include "main.h"
 #include "crypto.h"
 #include "sigcheck.h"
@@ -26,10 +17,64 @@
 #include <stdio.h>
 #include <string.h>
 
+/******************************************************************************
+ * Private Function Declarations
+ ******************************************************************************/
 static void SignatureVerify(const uint8_t *pSignature, 
                             const uint8_t *MessageDigest, const int32_t MessageDigestLength);
 
-void SignatureVerify(const uint8_t *pSignature,
+/******************************************************************************
+ * Extern Function Definitions
+ ******************************************************************************/
+extern void FwSignatureVerify(void)
+{
+  uint8_t *MessageDigest = (uint8_t*)HASH_ADD;
+  int32_t MessageDigestLength = HASH_SIZE;
+
+  /* enable CRC to allow cryptolib to work */
+  __CRC_CLK_ENABLE();
+
+  printf("\r\nStart FW Signature Check...\r\n");
+  printf("\tFW HASH address: 0x%08lx\r\n", HASH_ADD);
+  printf("\tFW HASH size: 0x%08x\r\n", HASH_SIZE);
+  printf("\tFW Signature address: 0x%08lx\r\n", SIG_ADD);
+  printf("\tFW Signature SIZE: 0x%08x\r\n", SIG_SIZE);
+
+  int i;
+  printf("\r\nFW HASH Result: \r\n");
+  for ( i = 0; i < HASH_SIZE; i++ )
+  {
+    printf("%02x",((uint8_t*)HASH_ADD)[i]);
+  }
+
+  printf("\r\nFW SIGNATURE data: \r\n");
+  for ( i = 0; i < SIG_SIZE; i++ )
+  {
+    printf("%02x",((uint8_t*)SIG_ADD)[i]);
+  }
+
+  /* verify ECC public key -- compare with the one stored after signature */
+  for ( i = 0; i < SIG_SIZE; i++ )
+  {
+    uint8_t *pPubkey = (uint8_t*)ECC_PUB_ADD;
+    if ( pPubkey[i] != SIGN_ECC_PUB_KEY[i])
+    {
+      printf("\r\nPublic key inconsistant!\r\n");
+      FatalErrorHandler();
+    }
+  }
+
+  printf("\r\n\r\n");
+  SignatureVerify((const uint8_t*)SIG_ADD, MessageDigest, MessageDigestLength);
+
+  return;
+}
+
+
+/******************************************************************************
+ * Private Function Definitions
+ ******************************************************************************/
+static void SignatureVerify(const uint8_t *pSignature,
                      const uint8_t *MessageDigest, const int32_t MessageDigestLength)
 {
   int32_t status;
@@ -180,50 +225,4 @@ void SignatureVerify(const uint8_t *pSignature,
   
 ERROR:
 	FatalErrorHandler();
-}
-
-
-void FW_Signature_Verify(void)
-{
-  uint8_t *MessageDigest = (uint8_t*)HASH_ADD;
-  int32_t MessageDigestLength = HASH_SIZE;
-  
-  /* enable CRC to allow cryptolib to work */ 
-  __CRC_CLK_ENABLE();
-    
-  printf("\r\nStart FW Signature Check...\r\n");
-  printf("\tFW HASH address: 0x%08lx\r\n", HASH_ADD);
-  printf("\tFW HASH size: 0x%08x\r\n", HASH_SIZE);
-  printf("\tFW Signature address: 0x%08lx\r\n", SIG_ADD);
-  printf("\tFW Signature SIZE: 0x%08x\r\n", SIG_SIZE);
-    
-  int i;
-  printf("\r\nFW HASH Result: \r\n");
-  for ( i = 0; i < HASH_SIZE; i++ )
-  {
-    printf("%02x",((uint8_t*)HASH_ADD)[i]);
-  }
-  
-  printf("\r\nFW SIGNATURE data: \r\n");
-  for ( i = 0; i < SIG_SIZE; i++ )
-  {
-    printf("%02x",((uint8_t*)SIG_ADD)[i]);
-  }
-  
-  /* verify ECC public key -- compare with the one stored after signature */
-  for ( i = 0; i < SIG_SIZE; i++ )
-  {
-    uint8_t *pPubkey = (uint8_t*)ECC_PUB_ADD;
-    if ( pPubkey[i] != SIGN_ECC_PUB_KEY[i])
-    {
-      printf("\r\nPublic key inconsistant!\r\n");
-      FatalErrorHandler();
-    }    
-  }
-  
-      
-  printf("\r\n\r\n");    
-  SignatureVerify((const uint8_t*)SIG_ADD, MessageDigest, MessageDigestLength);    
-
-  return;
 }

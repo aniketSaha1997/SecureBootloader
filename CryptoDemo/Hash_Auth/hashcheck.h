@@ -1,10 +1,11 @@
 /**
- * @file       hashcheck.c
- *
- * @brief
- *
+ ******************************************************************************
+ * @file    hashcheck.h
+ * @brief   Header file for hashcheck module.
+ *          This file provides set of firmware functions to manage hash
+ *          verification functionalities.
+ ******************************************************************************
  */
-
 #ifndef __HASHCHECK_H
 #define __HASHCHECK_H
 
