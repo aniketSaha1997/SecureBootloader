@@ -49,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern const volatile unsigned int  _Addr_Application;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +75,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+    SCB->VTOR = (uint32_t)(&_Addr_Application);
+  __enable_irq();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -101,14 +102,14 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("\r\n============= APP COM Init ==========\r\n");
 
-  printf("\r\n=============> Protection check\r\n");
+  /*printf("\r\n=============> Protection check\r\n");
   CheckApplyStaticProtections();
 
   printf("\r\n=============> FW Hash Verification\r\n");
   FwHashVerify();
 
   printf("\r\n=============> FW Signature Verification\r\n");
-  FwSignatureVerify();
+  FwSignatureVerify(); */
 
   printf("\r\n=============> Start App \r\n");
   APP_Init();

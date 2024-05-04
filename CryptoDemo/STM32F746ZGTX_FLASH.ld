@@ -41,15 +41,38 @@ _estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
 _Min_Heap_Size = 0x200; /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
+_Total_Memory = 1024K;
+
 /* User Symbols */
-/*_ADDR_FW = 0x08000000;*/
-/*__FW_SECTION_END = _ADDR_FW + 31K;*/
+_Addr_Bootloader = 0x08000000;
+_Size_Bootloader = 32K;
+
+/* Application symbols */
+_Addr_Application = _Addr_Bootloader + _Size_Bootloader;
+_Size_Application = _Total_Memory - _Size_Bootloader;
+
+
+/* Variables for RAM region. */
+_Total_Size_Ram = 320K;
+
+_Size_Ram_Allocated = 1K;
+_Size_Ram_For_Code  = _Total_Size_Ram - _Size_Ram_Allocated;
+
+_Addr_Ram_Allocated = 0x20000000;
+_Addr_RAM_For_Code  = _Addr_Ram_Allocated + _Size_Ram_Allocated;
+
+_Size_Application_MetaData = 0x10;
+_Size_RAM_Shared       = _Size_Ram_Allocated - _Size_Application_MetaData;
+_Addr_RAM_Shared       = _Addr_Ram_Allocated + _Size_Application_MetaData;
 
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 320K
-  FLASH    (rx)    : ORIGIN = 0x08000000,   LENGTH = 1024K
+  BOOTLOADER         (rx)    	 : ORIGIN = _Addr_Bootloader,             LENGTH = _Size_Bootloader
+  APPLICATION        (rx)    	 : ORIGIN = _Addr_Application,            LENGTH = _Size_Application
+  
+  RAM_SHARED_DATA    (xrw)   	 : ORIGIN = _Addr_RAM_Shared,             LENGTH = _Size_RAM_Shared
+  RAM                (xrw)   	 : ORIGIN = _Addr_RAM_For_Code,           LENGTH = _Size_Ram_For_Code
 }
 
 /* Sections */
@@ -61,7 +84,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -78,7 +101,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >APPLICATION
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
@@ -87,14 +110,14 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   .ARM.extab (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   .ARM (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -103,7 +126,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   .preinit_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -112,7 +135,7 @@ SECTIONS
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   .init_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -122,7 +145,7 @@ SECTIONS
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   .fini_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -132,7 +155,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPLICATION
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -150,7 +173,7 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
-  } >RAM AT> FLASH
+  } >RAM AT> APPLICATION
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
@@ -168,6 +191,14 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM
 
+  /* Shared memory section */
+  .sharedElements :
+  {
+     _start_sharedElements = .;  /* Starting address of the sharedElements section */
+     *(.sharedElements)  /* Place shared elements here */
+     _end_sharedElements = .;  /* Ending address of the sharedElements section */
+  } > RAM_SHARED_DATA
+  
   /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
   ._user_heap_stack :
   {
@@ -193,5 +224,5 @@ SECTIONS
   {
     __FW_SECTION_END = .;
     
-  } >FLASH
+  } >APPLICATION
 }
