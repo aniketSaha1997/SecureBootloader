@@ -135,11 +135,11 @@
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.10450828.118601999" name="sigcheck.h" rcbsApplicability="disable" resourcePath="Hash_Auth/sigcheck.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.10450828.1501807778" name="securitycheck_boot.h" rcbsApplicability="disable" resourcePath="Hash_Auth/securitycheck_boot.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Drivers|Projects" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="STM32CubeExpansion_Crypto_V4.1.0"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="App"/>
-						<entry excluding="fwauth.c|sigcheck.c|sigcheck.h|securitycheck_boot.h|securitycheck_boot.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Hash_Auth"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="fwauth.c|securitycheck_boot.h|securitycheck_boot.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Hash_Auth"/>
+						<entry excluding="Drivers|Projects" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="STM32CubeExpansion_Crypto_V4.1.0"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

@@ -79,7 +79,7 @@ void CheckApplyStaticProtections(void)
       isOBChangeToApply++;
     }
     printf("\r\nWRP already applied to sector[%d]\r\n",
-       flash_option_bytes.WRPSector);
+    		WRP_START_ADD);
 #endif /* WRP_PROTECT_ENABLE */
 
     

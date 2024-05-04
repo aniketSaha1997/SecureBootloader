@@ -28,6 +28,7 @@
 #include "hashcheck.h"
 #include "securitycheck.h"
 #include "app.h"
+#include "sigcheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,10 +102,13 @@ int main(void)
   printf("\r\n============= APP COM Init ==========\r\n");
 
   printf("\r\n=============> Protection check\r\n");
-  CheckApplyStaticProtections();
+  //CheckApplyStaticProtections();
 
   printf("\r\n=============> FW Hash Verification\r\n");
   FW_Hash_Verify();
+
+  printf("\r\n=============> FW Signature Verification\r\n");
+  FW_Signature_Verify();
 
   printf("\r\n=============> Start App \r\n");
   APP_Init();
