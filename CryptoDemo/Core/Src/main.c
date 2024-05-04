@@ -105,7 +105,7 @@ int main(void)
   //CheckApplyStaticProtections();
 
   printf("\r\n=============> FW Hash Verification\r\n");
-  FW_Hash_Verify();
+  FwHashVerify();
 
   printf("\r\n=============> FW Signature Verification\r\n");
   FW_Signature_Verify();

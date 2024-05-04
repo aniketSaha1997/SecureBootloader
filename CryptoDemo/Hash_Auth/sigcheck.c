@@ -167,19 +167,19 @@ void SignatureVerify(const uint8_t *pSignature,
     else
     {
       printf("\r\nFW Signature Check FAIL!\r\n");    
-      Fatal_Error_Handler();
+      FatalErrorHandler();
     }
   }
 	else
 	{
 		printf("\r\nFW Signature Check FAIL!\r\n");    
-		Fatal_Error_Handler();
+		FatalErrorHandler();
 	}
   
   return;
   
 ERROR:
-	Fatal_Error_Handler();
+	FatalErrorHandler();
 }
 
 
@@ -192,9 +192,9 @@ void FW_Signature_Verify(void)
   __CRC_CLK_ENABLE();
     
   printf("\r\nStart FW Signature Check...\r\n");
-  printf("\tFW HASH address: 0x%08x\r\n", HASH_ADD);
+  printf("\tFW HASH address: 0x%08lx\r\n", HASH_ADD);
   printf("\tFW HASH size: 0x%08x\r\n", HASH_SIZE);
-  printf("\tFW Signature address: 0x%08x\r\n", SIG_ADD);
+  printf("\tFW Signature address: 0x%08lx\r\n", SIG_ADD);
   printf("\tFW Signature SIZE: 0x%08x\r\n", SIG_SIZE);
     
   int i;
@@ -217,7 +217,7 @@ void FW_Signature_Verify(void)
     if ( pPubkey[i] != SIGN_ECC_PUB_KEY[i])
     {
       printf("\r\nPublic key inconsistant!\r\n");
-      Fatal_Error_Handler();
+      FatalErrorHandler();
     }    
   }
   
