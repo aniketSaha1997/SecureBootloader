@@ -45,7 +45,7 @@ void CheckApplyStaticProtections(void)
   HAL_FLASH_OB_Unlock();
 
   /* Get Option Bytes status for WRP AREA_A  **********/
-  flash_option_bytes.WRPSector     = OB_WRP_SECTOR_3;
+  flash_option_bytes.WRPSector     = OB_WRP_SECTOR_1;
   HAL_FLASHEx_OBGetConfig(&flash_option_bytes);
 
   /* Check/Apply RDP_Level 1. This is the minimum protection allowed */
@@ -53,8 +53,7 @@ void CheckApplyStaticProtections(void)
   if (flash_option_bytes.RDPLevel == OB_RDP_LEVEL_2)
   {
 #ifdef WRP_PROTECT_ENABLE
-    if ( (flash_option_bytes.WRPStartOffset > WRP_START_ADD) || 
-         (flash_option_bytes.WRPEndOffset < WRP_END_ADD))
+    if (flash_option_bytes.WRPSector > WRP_START_ADD)
     {
       goto ERROR;
     }
@@ -66,24 +65,21 @@ void CheckApplyStaticProtections(void)
     
 #ifdef WRP_PROTECT_ENABLE
     /* Apply WRP setting only if expected settings are not included */
-    if ( (flash_option_bytes.WRPStartOffset > WRP_START_ADD) || 
-         (flash_option_bytes.WRPEndOffset < WRP_END_ADD))
+    if(flash_option_bytes.WRPSector > WRP_START_ADD)
     {
-      flash_option_bytes.WRPStartOffset = WRP_START_ADD;
-      flash_option_bytes.WRPEndOffset = WRP_END_ADD;
-      
-      printf("\r\nTry to apply WRP from page [%d] to [%d]\r\n", 
-             flash_option_bytes.WRPStartOffset,
-             flash_option_bytes.WRPEndOffset);
+      flash_option_bytes.WRPSector = OB_WRP_SECTOR_1;
+      flash_option_bytes.WRPState  = OB_WRPSTATE_ENABLE;
+
+      printf("\r\nTry to apply WRP to sector [%d]\r\n",
+             flash_option_bytes.WRPSector);
       if (HAL_FLASHEx_OBProgram(&flash_option_bytes) != HAL_OK)
       {
         goto ERROR;
       }
       isOBChangeToApply++;
     }
-    printf("\r\nWRP already applied from page [%d] to [%d]\r\n", 
-       flash_option_bytes.WRPStartOffset,
-       flash_option_bytes.WRPEndOffset);
+    printf("\r\nWRP already applied to sector[%d]\r\n",
+       flash_option_bytes.WRPSector);
 #endif /* WRP_PROTECT_ENABLE */
 
     
