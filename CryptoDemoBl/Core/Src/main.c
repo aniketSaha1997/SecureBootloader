@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "map_linker.h"
+#include "fwauth.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -121,6 +122,9 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("\r\n============= In BL ==========\r\n");
+
+  printf("\r\n=============> Verify Firmware \r\n");
+  FW_Verify();
 
   printf("\r\n============= Jumping to Application ==========\r\n");
   HAL_Delay(500uL);

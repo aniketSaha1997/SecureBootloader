@@ -46,11 +46,13 @@ _Total_Size_Flash = 1024K;
 /* Variables for FLASH region. */
 /* Bootloader symbols */
 _Addr_Bootloader = 0x08000000;
-_Size_Bootloader = 32K;
+_Size_Bootloader = 64K;
 
 /* Application symbols */
-_Addr_Application = _Addr_Bootloader + _Size_Bootloader;
-_Size_Application = _Total_Size_Flash - _Size_Bootloader;
+_Size_Appl_Header = 1K;
+_Addr_Application_Header = _Addr_Bootloader + _Size_Bootloader;
+_Addr_Application		 = _Addr_Application_Header + _Size_Appl_Header;
+_Size_Application        = _Total_Size_Flash - _Size_Bootloader - _Size_Appl_Header;
 
 
 /* Variables for RAM region. */
@@ -70,6 +72,7 @@ _Addr_RAM_Shared       = _Addr_Ram_Allocated + _Size_Application_MetaData;
 MEMORY
 {
   BOOTLOADER         (rx)    	 : ORIGIN = _Addr_Bootloader,             LENGTH = _Size_Bootloader
+  APPLICATION_HEADER (rx)        : ORIGIN = _Addr_Application_Header,     LENGTH = _Size_Appl_Header
   APPLICATION        (rx)    	 : ORIGIN = _Addr_Application,            LENGTH = _Size_Application
   
   RAM_SHARED_DATA    (xrw)   	 : ORIGIN = _Addr_RAM_Shared,             LENGTH = _Size_RAM_Shared
