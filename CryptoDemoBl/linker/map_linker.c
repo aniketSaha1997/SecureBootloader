@@ -18,7 +18,7 @@
 #include "main.h"
 
 /******************************************************************************
- * #6 Module Global Variable Declarations
+ * Module Global Variable Declarations
  ******************************************************************************/
 extern const volatile unsigned int  _Addr_Application;
 extern unsigned int _start_sharedElements;

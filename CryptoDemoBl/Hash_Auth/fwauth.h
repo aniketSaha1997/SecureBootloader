@@ -2,33 +2,35 @@
   ******************************************************************************
   * @file    fwauth.h
   * @brief   Header file of security config check module.
-  *          This file provides set of firmware functions to manage Com
-  *          functionalities.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
 #ifndef __FW_AUTH_H
 #define __FW_AUTH_H
-#include "main.h"
 
+/******************************************************************************
+ * Include Header Files
+ ******************************************************************************/
+#include "stdint.h"
+#include "stdio.h"
+
+/******************************************************************************
+ * Global variables
+ ******************************************************************************/
 extern const volatile unsigned int  _Addr_Application_Header, _Addr_Application;
 
-#define FW_HASH_LEN              32 /* SHA256*/
-#define FW_META_SIG_LEN         64 /* ECDSA P256*/
+/******************************************************************************
+ * Macros Constant Declarations
+ ******************************************************************************/
+#define FW_HASH_LEN             32u /* SHA256*/
+#define FW_META_SIG_LEN         64u /* ECDSA P256*/
 #define FW_MAGIC                'FWMA'
 #define FW_META_DATA_ADD        (uint32_t)(&_Addr_Application_Header)
 #define FW_ADD                  (uint32_t)(&_Addr_Application)
 
+/******************************************************************************
+ * Type Declarations
+ ******************************************************************************/
 /* 
  * FW meta data for verification 
  * Totoal size 128 bytes, with 20 reserved bytes not used 
@@ -43,10 +45,14 @@ typedef struct {
   uint8_t  MetaSig[FW_META_SIG_LEN];  /*!< Signature of the header message (before MetaTag)*/
 }FW_Meta_t;
 
-
-
-/* Hash data is placed at the last page of the flash*/
-
-int32_t FW_Verify(void);
+/******************************************************************************
+ * Extern Functions Declaration
+ ******************************************************************************/
+/**
+  * @brief  Verifies the integrity of the application binary.
+  *
+  * @retval NONE
+  */
+extern int32_t FwVerify(void);
 
 #endif /* __FW_AUTH_H */
