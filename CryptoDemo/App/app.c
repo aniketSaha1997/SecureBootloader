@@ -112,7 +112,7 @@ static void TEST_PROTECTIONS_Read_SecUserMem(void)
   HAL_FLASH_OB_Unlock();
 
   /* Get Option Bytes status for WRP AREA_A  **********/
-  flash_option_bytes.WRPSector     = OB_WRP_SECTOR_4;
+  flash_option_bytes.WRPSector     = OB_WRP_SECTOR_0;
   HAL_FLASHEx_OBGetConfig(&flash_option_bytes);
   
   /* Lock the Options Bytes ***************************************************/
@@ -123,7 +123,7 @@ static void TEST_PROTECTIONS_Read_SecUserMem(void)
   HAL_FLASH_Lock();
 
   /* 128 bit key + 1 char for NULL-terminated string */
-  volatile uint32_t *pdata[] = {(uint32_t*)0x08000000, (uint32_t*)0x080061FC};
+  volatile uint32_t *pdata[] = {(uint32_t*)0x08000000, (uint32_t*)0x08007FFF};
   
   printf("\r\n====== Test Protection: Secure User Memory =================\r\n\n");
   printf("If the Secure User Memory is enabled you should not be able to read the content.\r\n\n");
