@@ -41,12 +41,36 @@ class STM32Updater(QMainWindow):
 
         # Signal connections and logic
         self.layout.select_file_btn.clicked.connect(self.select_file)
-        self.layout.update_btn.clicked.connect(self.start_update)
+        self.layout.update_btn.clicked.connect(self.start_upload)
+        self.layout.cancel_btn.clicked.connect(self.cancel_upload)
         self.layout.full_chip_erase_btn.clicked.connect(self.full_chip_erase)
         self.layout.erase_sector_btn.clicked.connect(self.erase_selected_sector)
+        self.layout.connect_button.clicked.connect(self.connect_or_disconnect)
 
         self.selected_file = None  # Variable initialization
         self.serial_port = None  # Serial port initialization
+        self.uploading = False  # Initially, there is no ongoing upload
+        
+
+    def connect_or_disconnect(self):
+        # Function to connect or disconnect the serial port
+        if self.serial_port and self.serial_port.is_open:
+            # Disconnect logic
+            self.serial_port.close()
+            self.layout.connect_button.setText("Connect")  # Change button text
+            self.layout.com_port_selector.setEnabled(True)
+            self.layout.disable_buttons()
+            self.layout.disable_sector_dropdown()
+            QMessageBox.information(self, "Disconnected", "Serial port has been disconnected.")
+        else:
+            # Connect logic
+            self.init_serial_port()
+            self.layout.connect_button.setText("Disconnect")  # Change button text
+            self.layout.com_port_selector.setEnabled(False)
+            self.layout.enable_buttons()
+            self.layout.enable_sector_dropdown()
+            QMessageBox.information(self, "Connected", "Serial port has been connected.")
+
 
     def select_file(self):
         # File selection logic
@@ -59,35 +83,79 @@ class STM32Updater(QMainWindow):
         else:
             self.selected_file = None
 
+
+    def start_upload(self):
+        if not self.uploading:
+            self.uploading = True  # Set the flag to start the upload
+
+            # Enable the "Cancel" button and start the upload
+            self.layout.cancel_btn.setEnabled(True)
+            self.upload_binary()  # Start the upload process
+
+    def cancel_upload(self):
+        # If cancel button is clicked, set uploading to False and reset styles
+        self.uploading = False
+        self.layout.cancel_btn.setEnabled(False)  # Disable the "Cancel" button
+        self.layout.progress_bar.setValue(0)
+        self.layout.progress_bar.setFormat("0%")
+       # QtWidgets.QMessageBox.information(self, "Upload Canceled", "The upload was canceled.")
+
+
     def start_update(self):
+        if not self.uploading:
+            return  # If upload was canceled, do nothing
+
+        if not self.serial_port or not self.serial_port.is_open:
+            QtWidgets.QMessageBox.warning(self, "Not Connected", "Please connect to a serial port first.")
+            return
+
         if not self.selected_file:
-            QMessageBox.warning(
+            QtWidgets.QMessageBox.warning(
                 self,
                 "No File Selected",
                 "Please select a binary file before starting the update.",
             )
             return
 
-        # Initialize serial port
-        self.init_serial_port()
-
         # Start the upload process
         self.upload_binary()
 
+
     def init_serial_port(self):
+        # Check if the serial port is already initialized and open
+        if self.serial_port and self.serial_port.is_open:
+            return  # If already open, do nothing
+
+        # Get the selected COM port from the ComboBox
+        selected_port = self.layout.com_port_selector.currentText()
+
+        # Initialize the serial port if it's not initialized
         if not self.serial_port:
             self.serial_port = serial.Serial(
-                port="COM1", baudrate=115200, timeout=1
+                port=selected_port,
+                baudrate=115200,
+                timeout=1,
             )
+
+        # Open the serial port if it's not already open
         if not self.serial_port.is_open:
             self.serial_port.open()
 
+
     def upload_binary(self):
-        if self.selected_file is None:
-            QMessageBox.warning(
+        if not self.uploading:
+            return  # If the upload flag is set to False, stop early
+
+        # Check the serial port and selected file
+        if not self.serial_port or not self.serial_port.is_open:
+            QtWidgets.QMessageBox.warning(self, "Not Connected", "Please connect to a serial port first.")
+            return
+
+        if not self.selected_file:
+            QtWidgets.QMessageBox.warning(
                 self,
                 "No File Selected",
-                "Please select a file to upload.",
+                "Please select a binary file before starting the update.",
             )
             return
 
@@ -97,22 +165,39 @@ class STM32Updater(QMainWindow):
             chunk_size = 4
             sent_size = 0
 
-            while sent_size < total_size:
-                chunk = data[sent_size : sent_size + chunk_size]
-                self.serial_port.write(chunk)
-                sent_size += chunk_size
+            try:
+                while sent_size < total_size:
+                    if not self.uploading:
+                        self.layout.reset_upload_style() 
+                        raise Exception("Upload canceled.")  # Stop the loop
 
-                progress = (sent_size / total_size) * 100
-                self.layout.progress_bar.setValue(int(progress))
+                    # Write data to the serial port
+                    chunk = data[sent_size : sent_size + chunk_size]
+                    self.serial_port.write(chunk)
+                    sent_size += chunk_size
 
-                time.sleep(0.01)
+                    # Update the progress bar
+                    progress = (sent_size / total_size) * 100
+                    self.layout.progress_bar.setValue(int(progress))
+                    self.layout.progress_bar.setFormat(f"{int(progress)}%")
 
-        QMessageBox.information(self, "Update Complete", "The update was successful.")
+                    QtWidgets.QApplication.processEvents()  # Keep the GUI responsive
+
+                QtWidgets.QMessageBox.information(self, "Update Complete", "The update was successful.")
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Error", f"An error occurred during the update: {str(e)}")
+            finally:
+                # Reset the flag and the state of the "Cancel" button
+                self.uploading = False
+                self.layout.cancel_btn.setEnabled(False)  # Disable the "Cancel" button
+
+
+
 
     def full_chip_erase(self):
         try:
             self.init_serial_port()
-            self.serial_port.write(b'CHIP_ERASE')
+            self.serial_port.write(b'FULL_CHIP_ERASE')
             QMessageBox.information(self, "Full Chip Erase", "Full chip erase initiated.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to erase chip: {str(e)}")

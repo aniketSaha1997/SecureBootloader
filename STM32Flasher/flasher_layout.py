@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
 )
 import serial.tools.list_ports
-from cssStyles import CSS_BUTTON_DEFAULT
+from cssStyles import CSS_BUTTON_DEFAULT, CSS_LABEL_GREY
 from cssStyles import CSS_COMBO_BOX_DEFAULT
 
 class STM32UpdaterLayout(QtWidgets.QWidget):
@@ -51,9 +51,9 @@ class STM32UpdaterLayout(QtWidgets.QWidget):
         self.com_port_selector.setGeometry(80, spacingHeight, 200, 30)  # Adjusted to fit within the window
         self.populate_com_ports()
 
-        self.disconnect_button = QPushButton("Disconnect", self)
-        self.disconnect_button.setGeometry(290, spacingHeight, 120, 30)  # Fixed position and width
-        self.disconnect_button.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
+        self.connect_button = QPushButton("Connect", self)
+        self.connect_button.setGeometry(290, spacingHeight, 120, 30)  # Fixed position and width
+        self.connect_button.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
 
         # File selection button and label
         select_file_label_font = QFont("Arial", 12)  # Font settings
@@ -70,7 +70,7 @@ class STM32UpdaterLayout(QtWidgets.QWidget):
 
         # Full chip erase button
         self.full_chip_erase_btn = QPushButton("Full Chip Erase", self)
-        self.full_chip_erase_btn.setGeometry(spacingWidth + 200, spacingHeight + 250, 160, 30)
+        self.full_chip_erase_btn.setGeometry(spacingWidth + 220, spacingHeight + 250, 160, 30)
         self.full_chip_erase_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
 
         # Erase sector button and dropdown
@@ -79,14 +79,14 @@ class STM32UpdaterLayout(QtWidgets.QWidget):
         self.erase_sector_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
 
         self.sector_dropdown = QComboBox(self)
-        self.sector_dropdown.setGeometry(spacingWidth + 580, spacingHeight + 250, 140, 30)
+        self.sector_dropdown.setGeometry(spacingWidth + 560, spacingHeight + 250, 140, 30)
         self.sector_dropdown.setStyleSheet(CSS_COMBO_BOX_DEFAULT)  # Apply the style
         for i in range(9):
             self.sector_dropdown.addItem(f"Sector {i}")
 
         # Progress bar and "Start Update" button
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setGeometry(spacingWidth, window_height - 50, window_width - 150, 30)
+        self.progress_bar.setGeometry(spacingWidth + 50, window_height - 100, window_width - 120, 30)
 
         # Set initial progress value and format
         self.progress_bar.setValue(0)  # Start at 0%
@@ -97,13 +97,56 @@ class STM32UpdaterLayout(QtWidgets.QWidget):
         self.progress_bar.setTextVisible(True)
 
         self.update_btn = QPushButton("Start Update", self)
-        self.update_btn.setGeometry(window_width - 130, window_height - 50, 120, 30)
+        self.update_btn.setGeometry(spacingWidth + 310, window_height - 50, 120, 30)
         self.update_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
-        
 
+        self.cancel_btn = QPushButton("Cancel", self)
+        self.cancel_btn.setGeometry(spacingWidth + 450, window_height - 50, 120, 30)
+        self.cancel_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Apply the style
+
+        # Initialize the default button state
+        self.update_btn.setEnabled(False)  # Disable initially
+        self.update_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Set default style
+        self.full_chip_erase_btn.setEnabled(False)
+        self.erase_sector_btn.setEnabled(False)
+        self.cancel_btn.setEnabled(False)
+        self.sector_dropdown.setEnabled(False)
+        self.sector_dropdown.setStyleSheet(CSS_LABEL_GREY)
+        
+    def enable_buttons(self):
+        self.update_btn.setEnabled(True)  # Enable the update button
+        self.full_chip_erase_btn.setEnabled(True)  # Enable the full chip erase button
+        self.erase_sector_btn.setEnabled(True)  # Enable the erase sector button
+
+    def disable_buttons(self):
+        self.update_btn.setEnabled(False)  # Disable the update button
+        self.full_chip_erase_btn.setEnabled(False)
+        self.erase_sector_btn.setEnabled(False)
+        
+    def enable_sector_dropdown(self):
+        # Enable the ComboBox when connected
+        self.sector_dropdown.setEnabled(True)
+        self.sector_dropdown.setStyleSheet(CSS_COMBO_BOX_DEFAULT)
+
+    def disable_sector_dropdown(self):
+        # Disable the ComboBox when disconnected
+        self.sector_dropdown.setEnabled(False)
+        self.sector_dropdown.setStyleSheet(CSS_LABEL_GREY)
+ 
     def populate_com_ports(self):
         # Clear the ComboBox and add available COM ports
         self.com_port_selector.clear()
         ports = serial.tools.list_ports.comports()
         for port in ports:
             self.com_port_selector.addItem(port.device)
+
+    def set_upload_style(self):
+        self.update_btn.setText("Cancel")  # Change text to "Cancel"
+        self.update_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Change to red style
+
+    def reset_upload_style(self):
+        self.update_btn.setText("Start Update")  # Reset text to "Start Update"
+        self.update_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Reset to default style
+        self.progress_bar.setValue(0)  # Reset progress bar to 0
+        self.progress_bar.setFormat("0%")  # Display 0%
+    

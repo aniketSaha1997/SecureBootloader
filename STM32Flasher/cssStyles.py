@@ -31,15 +31,29 @@ CSS_BUTTON_DEFAULT = """
 
     QPushButton:disabled {
         background-color: #E0E0E0;
-        border-radius: 16px;
+        border-radius: 10px;
         border: 1px solid #BDBDBD;
         color: #9E9E9E;
-        font-size: 20px;
-        padding: 12px 24px;
+        font-size: 16px;
+        padding: 4px 4px;
         text-align: center;
         text-decoration: none;
     }
 """
+
+CSS_BUTTON_RED = """
+    QPushButton {
+        background-color: darkred;
+        border-radius: 10px;  # Rounded corners
+        border: 1px solid darkred;  # Dark red border
+        color: white;  # White text
+        font-size: 16px;  # Font size
+        padding: 4px 4px;  # Padding
+        text-align: center;  # Text alignment
+        text-decoration: none;  # No text decoration
+    }
+"""
+
 
 CSS_LED_DEFAULT = "border-radius: 15px; background-color: red;"
 
