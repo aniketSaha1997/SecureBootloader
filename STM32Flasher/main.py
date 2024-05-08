@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtWidgets
-from flasher import STM32Updater  # Import the main class from flasher
+from STM32Flasher import STM32Updater  # Import the main class from flasher
 
 def main():
     """Main entry point for the STM32 updater application."""

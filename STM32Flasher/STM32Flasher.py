@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
 )
 
-from flasher_layout import STM32UpdaterLayout
+from STM32FlasherLayout import STM32UpdaterLayout
 
 import serial  # For serial communication
 
