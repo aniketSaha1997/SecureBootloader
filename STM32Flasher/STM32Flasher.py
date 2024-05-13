@@ -97,12 +97,14 @@ class STM32Updater(QMainWindow):
         
         self.uploading = True  # Mark the beginning of the upload process
         self.layout.cancel_btn.setEnabled(True)  # Enable the "Cancel" button
+        self.serial_port.write(b'FLASH_START\0')  # Send flashing start command
         self.upload_binary()  # Begin the binary upload
 
     def cancel_upload(self):
         """Cancels the ongoing binary upload."""
         self.uploading = False  # Stop the upload process
         self.layout.cancel_btn.setEnabled(False)  # Disable the "Cancel" button
+        self.serial_port.write(b'FLASH_ABORT\0')  # Send erase command
         self.layout.reset_upload_style()  # Reset upload-related styles
 
     def init_serial_port(self):
@@ -179,6 +181,9 @@ class STM32Updater(QMainWindow):
                     # Keep the GUI responsive
                     QtWidgets.QApplication.processEvents()
 
+                # Send "FLASH COMPLETE" message after the entire binary is sent
+                self.serial_port.write(b"FLASH_COMPLETE\n")
+
                 QtWidgets.QMessageBox.information(self, "Update Complete", "The update was successful.")
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self, "Error", f"An error occurred during the update: {str(e)}")
@@ -191,24 +196,36 @@ class STM32Updater(QMainWindow):
         """Erases the entire chip."""
         try:
             self.init_serial_port()  # Ensure the serial port is connected
-            self.serial_port.write(b'FULL_CHIP_ERASE')  # Send erase command
-            QtWidgets.QMessageBox.information(self, "Full Chip Erase", "Full chip erase initiated.")
+            self.serial_port.write(b'FULL_CHIP_ERASE\0')  # Send erase command
+
+            acknowledgment = self.serial_port.readline().decode().strip()
+            if acknowledgment == "FULL CHIP ERASED":
+                QtWidgets.QMessageBox.information(
+                    self, f"Full Chip Erased", f"Application erased"
+                )
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", f"Failed to erase the chip: {str(e)}")
+            QtWidgets.QMessageBox.critical(
+                self, "Error", f"Failed to erase application"
+            )
 
     def erase_selected_sector(self):
         """Erases the selected sector on the chip."""
         try:
             self.init_serial_port()  # Ensure the serial port is connected
             sector = self.layout.sector_dropdown.currentText().split()[-1]  # Get the selected sector
-            self.serial_port.write(f"ERASE_SECTOR {sector}".encode())  # Send erase command
-            QtWidgets.QMessageBox.information(
-                self, f"Erase Sector {sector}", f"Sector {sector} erase initiated."
-            )
+            self.serial_port.write(f"ERASE_SECTOR {sector}\0".encode())  # Send erase command
+            
+            # Wait for acknowledgment from the STM32 side
+            acknowledgment = self.serial_port.readline().decode().strip()
+            if acknowledgment == "SECTOR ERASED":
+                QtWidgets.QMessageBox.information(
+                    self, f"Erase Sector {sector}", f"Sector {sector} erased."
+                )
         except Exception as e:
             QtWidgets.QMessageBox.critical(
                 self, "Error", f"Failed to erase sector: {str(e)}"
             )
+
 
     def closeEvent(self, event):
         """Closes the serial port when the window is closed."""

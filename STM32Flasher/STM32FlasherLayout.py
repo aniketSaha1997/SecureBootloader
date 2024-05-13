@@ -149,3 +149,9 @@ class STM32UpdaterLayout(QtWidgets.QWidget):
         # Restore the current selection if it still exists
         if current_selection in [self.com_port_selector.itemText(i) for i in range(self.com_port_selector.count())]:
             self.com_port_selector.setCurrentText(current_selection)
+
+    def reset_upload_style(self):
+        """Resets the buttons after cancel, for next  upload operation."""
+        self.update_btn.setStyleSheet(CSS_BUTTON_DEFAULT)  # Reset to default style
+        self.progress_bar.setValue(0)  # Reset progress bar to 0
+        self.progress_bar.setFormat("0%")  # Display 0%
